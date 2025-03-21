@@ -112,3 +112,17 @@ func (u Usuarios) Atualizar(id uint64, usuario modelos.Usuario) error {
 	return nil
 
 }
+
+func (u Usuarios) Delete(id uint64) error {
+	statement, erro := u.db.Prepare("delete from usuarios where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	if _, erro = statement.Exec(id); erro != nil {
+		return erro
+	}
+
+	return nil
+}
