@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"api/repositorios"
+	"api/src/autenticacao"
 	"api/src/banco"
 	"api/src/modelos"
 	"api/src/respostas"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -103,6 +106,19 @@ func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
 	}
+
+	usuarioIDNoToken, erro := autenticacao.ExtrairUsuarioID(r)
+	if erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	if usuarioId != usuarioIDNoToken {
+		respostas.Erro(w, http.StatusForbidden, errors.New("Não é possivel atualizar um usuario que nao seja o seu"))
+		return
+	}
+
+	fmt.Println(usuarioIDNoToken)
 
 	corporequisicao, erro := ioutil.ReadAll(r.Body)
 	if erro != nil {
